@@ -177,7 +177,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_config_file", type=str, required=True)
     parser.add_argument("--local_rank", type=int)
-    parser.add_argument('--cached_data', type=str, help='the cached data file')
+    parser.add_argument('--cached_data', type=str, help='the cached data file')  # 缓存训练过程，防止oom重新训练
     args = parser.parse_args()
     main()
 

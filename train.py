@@ -58,7 +58,7 @@ def main():
         losses = 0  # 当前整个epoch总的损失之和，一个epoch对应多个batch，每个batch会计算一次损失再进行反向传播更新参数
         accuracy = 0  # 当前整个epoch的精确率之和
 
-        model.train()  # train:把模型设置到训练状态，后面还需要再设置成评估状态
+        model.train()  # 模型的启动模式，train:把模型设置到训练状态，后面还需要再设置成评估状态
         train_bar = tqdm(train_dataloader, ncols=100)  # 迭代每个batch，可视化当前epoch迭代到第几个batch
         for input_ids, token_type_ids, attention_mask, label_id in train_bar:  # 当前batch的数据
             # 梯度清零
@@ -79,25 +79,25 @@ def main():
 
             # 计算loss
             loss = criterion(output, label_id.to(device))
-            losses += loss.item()
+            losses += loss.item()  # 累计所有损失
 
             # output [0.1, 0.05, ..., 0.23]
-            pred_labels = torch.argmax(output, dim=1)  # 返回集中中数值最大的index
-            # 通过预测的标签是否等于传入的真实标签，求精确率
+            pred_labels = torch.argmax(output, dim=1)  # 返回集合中数值最大的label
+            # 通过预测的标签是否等于传入的真实标签，计算当前batch的精确率
             acc = torch.sum(pred_labels == label_id.to(device)).item() / len(pred_labels)
             accuracy += acc
 
-            loss.backward()  # 进行损失的反向传播
-            optimizer.step()  # 执行优化器的优化
+            loss.backward()  # 进行损失的反向传播,计算梯度
+            optimizer.step()  # 执行优化器的优化，实施梯度的更新
             train_bar.set_postfix(loss=loss.item(), acc=acc)  # 设置打印信息的值
 
-        average_loss = losses / len(train_dataloader)
-        average_acc = accuracy / len(train_dataloader)
+        average_loss = losses / len(train_dataloader)  # 计算一个epoch的损失
+        average_acc = accuracy / len(train_dataloader)  # 计算一个epoch的精确率
 
         print('\tTrain ACC:', average_acc, '\tLoss:', average_loss)
 
         # ----------------模型验证过程----------------
-        model.eval()  # 每个epoch执行完之后，把model切换成评估模式，代码与训练模式类似
+        model.eval()  # 每个epoch执行完之后，把model切换成评估模式评估模型的泛化能力，代码与训练模式类似
         losses = 0
         pred_labels = []
         true_labels = []
@@ -111,10 +111,10 @@ def main():
                 token_type_ids=token_type_ids.to(device),
             )
 
-            loss = criterion(output, label_id.to(device))   # 计算损失
+            loss = criterion(output, label_id.to(device))  # 计算损失
             losses += loss.item()
 
-            pred_label = torch.argmax(output, dim=1)    # 计算预测值
+            pred_label = torch.argmax(output, dim=1)  # 计算预测值
             acc = torch.sum(pred_label == label_id.to(device)).item() / len(pred_label)
             valid_bar.set_postfix(loss=loss.item(), acc=acc)
 
@@ -122,7 +122,7 @@ def main():
             true_labels.extend(label_id.numpy().tolist())
 
         average_loss = losses / len(valid_dataloader)
-        print('\tLoss:', average_loss) # 打印平均损失
+        print('\tLoss:', average_loss)  # 打印平均损失
 
         # 分类报告
         # classification_report:根据真实标签和预测标签输出每个类别的prf信息
